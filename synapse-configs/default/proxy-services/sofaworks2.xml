@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse"
+       name="sofaworks2"
+       transports="https http"
+       startOnLoad="true"
+       trace="disable">
+   <description/>
+   <target>
+      <inSequence>
+         <header name="Accept" scope="transport" value="application/json"/>
+         <call>
+            <endpoint>
+               <address uri="http://localhost:5050/json_mockservice"/>
+            </endpoint>
+         </call>
+         <enrich>
+            <source type="body" clone="true"/>
+            <target type="property" property="stock1"/>
+         </enrich>
+         <property name="HTTP_METHOD" value="GET" scope="axis2" type="STRING"/>
+         <call>
+            <endpoint>
+               <address uri="http://localhost:5051/jsonmock2"/>
+            </endpoint>
+         </call>
+         <enrich>
+            <source clone="true" xpath="//Product"/>
+            <target type="property" property="productname"/>
+         </enrich>
+         <log>
+            <property name="Product***********************name"
+                      expression="get-property('productname')"/>
+         </log>
+         <enrich>
+            <source type="property" clone="true" property="stock1"/>
+            <target type="body"/>
+         </enrich>
+         <enrich>
+            <source type="property" clone="true" property="productname"/>
+            <target action="child" xpath="//jsonArray/jsonElement"/>
+         </enrich>
+         <log level="full"/>
+         <property name="RESPONSE" value="true"/>
+         <header name="To" action="remove"/>
+         <send/>
+      </inSequence>
+      <outSequence/>
+   </target>
+</proxy>

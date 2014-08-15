@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse"
+       name="sofaworks"
+       transports="https http"
+       startOnLoad="true"
+       trace="disable">
+   <description/>
+   <target>
+      <inSequence>
+         <log level="full"/>
+         <header name="Accept" scope="transport" value="application/json"/>
+         <property name="count" value="1" scope="default" type="STRING"/>
+         <send>
+            <endpoint>
+               <address uri="http://localhost:8080/json_mockservice"/>
+            </endpoint>
+         </send>
+      </inSequence>
+      <outSequence>
+         <switch source="get-property('count')">
+            <case regex="1">
+               <property name="count" value="2" scope="default" type="STRING"/>
+               <property name="HTTP_METHOD" value="GET" scope="axis2" type="STRING"/>
+               <property name="Stock1" expression="$body"/>
+               <log level="full">
+                  <property name="Status" value="Ron Mediator Case2 Invoked"/>
+                  <property name="LogStock" expression="get-property('Stock')"/>
+               </log>
+               <send>
+                  <endpoint>
+                     <address uri="http://localhost:8081/jsonmock2"/>
+                  </endpoint>
+               </send>
+            </case>
+            <case regex="2">
+               <payloadFactory media-type="json">
+                  <format> 
+                     [$1,$2] 
+                  </format>
+                  <args>
+                     <arg evaluator="xml" expression="get-property('Stock1')"/>
+                     <arg evaluator="json" expression="$"/>
+                  </args>
+               </payloadFactory>
+               <property name="RESPONSE" value="true"/>
+               <header name="To" action="remove"/>
+               <send/>
+            </case>
+         </switch>
+      </outSequence>
+   </target>
+</proxy>
