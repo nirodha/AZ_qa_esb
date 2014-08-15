@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse"
+       name="SImpleStockProxy"
+       transports="https,http"
+       statistics="disable"
+       trace="disable"
+       startOnLoad="true">
+   <target>
+      <outSequence>
+         <send/>
+      </outSequence>
+      <endpoint>
+         <address uri="http://appserver.qaaz.gov/services/t/wso2.com/SimpleStockQuoteService"/>
+      </endpoint>
+   </target>
+   <description/>
+</proxy>
+                                
